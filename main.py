@@ -1,15 +1,18 @@
 import logging
 import json
+import os
 import re
-from os.path import isfile
 
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters
+
+load_dotenv()
 
 FILEPATH = 'booking_list.json'
 
 # Initializes the booking_list dictionary to save bookings.
-if isfile(FILEPATH):
+if os.path.isfile(FILEPATH):
     with open(FILEPATH, 'r') as openfile:
         booking_list = json.load(openfile)
 else:
@@ -63,7 +66,8 @@ async def view(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Starts the TelegramBot and its various functions.
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('dfkughdigsdf').build()
+
+    application = ApplicationBuilder().token(os.environ['TOKEN']).build()
     
     start_handler = CommandHandler('start', start)
     book_handler = CommandHandler('book', book)
