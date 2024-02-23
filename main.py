@@ -1,10 +1,11 @@
 import logging
 import json
 import os
+import re
 
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, filters
 
 load_dotenv()
 
@@ -42,11 +43,17 @@ E.g. /book 25-05 16:30"""
 # A function that records the user's requested tuition timing.
 async def book(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    booking_list[str(context._user_id)].append(' '.join(context.args))
-    with open(FILEPATH, 'w') as outfile:
-        json.dump(booking_list, outfile)
+    reply = 'Thanks for making a booking with us!'
+    regex = r'(\/book\s+0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])\s(0[1-9]|1[0-9]|2[0-3]):([0-5][0-9])'
+    datetime = ' '.join(context.args)
+    if re.fullmatch(regex, datetime):
+        booking_list[str(context._user_id)].append(datetime)
+        with open(FILEPATH, 'w') as outfile:
+            json.dump(booking_list, outfile)
+    else:
+        reply = 'Your input is invalid, please follow the format DD-MM hh:mm!'
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text='Thanks for making a booking with us!')
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
 
 
 # A function to allow the user to view their bookings.
@@ -59,6 +66,7 @@ async def view(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Starts the TelegramBot and its various functions.
 if __name__ == '__main__':
+
     application = ApplicationBuilder().token(os.environ['TOKEN']).build()
     
     start_handler = CommandHandler('start', start)

@@ -31,5 +31,5 @@ For more detailed instructions on how to set up a Telegram Bot, visit the [tutor
 ## Roadmap
 
 - [ ] A function for users to delete the previous bookings.
-- [ ] Checking mechanisms to ensure a proper format of date and time is observed.
-- [ ] Serialization to have a persistent list of schedules.
+- [x] Checking mechanisms to ensure a proper format of date and time is observed.
+- [x] Serialization to have a persistent list of schedules.
