@@ -1,9 +1,17 @@
 import logging
+import json
+from os.path import isfile
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
+FILEPATH = 'booking_list.json'
+
 # Initializes the booking_list dictionary to save bookings.
-booking_list = {}
+if isfile(FILEPATH):
+    with open(FILEPATH, 'r') as openfile:
+        booking_list = json.load(openfile)
+else:
+    booking_list = {}
 
 
 # Log the TelegramBot for errors.
@@ -20,7 +28,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 To book, type in the date and time in DD-MM hh:mm after your /book.\n
 E.g. /book 25-05 16:30"""
 
-    booking_list[context._user_id]=[]
+    booking_list[str(context._user_id)]=[]
+    with open(FILEPATH, 'w') as outfile:
+        json.dump(booking_list, outfile)
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_text)
 
@@ -28,7 +38,9 @@ E.g. /book 25-05 16:30"""
 # A function that records the user's requested tuition timing.
 async def book(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    booking_list[context._user_id].append(' '.join(context.args))
+    booking_list[str(context._user_id)].append(' '.join(context.args))
+    with open(FILEPATH, 'w') as outfile:
+        json.dump(booking_list, outfile)
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text='Thanks for making a booking with us!')
 
@@ -36,7 +48,7 @@ async def book(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # A function to allow the user to view their bookings.
 async def view(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    output_string = "Your bookings are:\n\n" + "\n".join(booking_list[context._user_id])
+    output_string = "Your bookings are:\n\n" + "\n".join(booking_list[str(context._user_id)])
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=output_string)
 
